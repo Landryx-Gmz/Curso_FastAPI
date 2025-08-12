@@ -22,3 +22,6 @@ def create_users(user: User):
         "datos" : user
     }
 
+@app.put("/users/{user_id}")
+def update_user(user_id: int, user: User):
+    return{"user_id": user_id, **user.model_dump()}
