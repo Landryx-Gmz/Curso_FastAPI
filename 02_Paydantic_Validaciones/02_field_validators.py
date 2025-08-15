@@ -17,3 +17,12 @@ def es_par(value: int) -> int:
 
 NumeroPar = Annotated[int, AfterValidator(es_par)]
 
+class Model1(BaseModel):
+    my_number: NumeroPar
+
+
+
+# class Model2(BaseModel):
+#     my_number:
+# class Model3(BaseModel):
+
