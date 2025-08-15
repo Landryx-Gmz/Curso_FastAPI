@@ -19,7 +19,7 @@ NumeroPar = Annotated[int, AfterValidator(es_par)]
 
 class Model1(BaseModel):
     my_number: NumeroPar
-
+ejemplo: Model1 = Model1(my_number=2)
 
 
 # class Model2(BaseModel):
