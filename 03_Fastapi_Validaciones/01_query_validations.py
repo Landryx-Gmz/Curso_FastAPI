@@ -47,7 +47,13 @@ def check_valid_id(id: str):
 #    Ejemplo con Metadata
 @app.get("/items/")
 async def read_items(q: Annotated[
-    int | None, Query(gt=3, tittle="Query", description="Lo que se va a buscar")
+    int | None, Query(
+        gt=3,
+        tittle="Query",
+        description="Lo que se va a buscar",
+        alias="item-query",
+        deprecated="True"
+        )
     ] = None):
     results: dict = {"mensaje": "Acceso a get(read_items)"}
     if q:
