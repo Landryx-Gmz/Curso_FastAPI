@@ -1,11 +1,17 @@
 from pydantic import BaseModel, Field
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from typing import Annotated, Literal
 
 class Tarea(BaseModel):
     id: Annotated[int, Field(gt=0)]
     titulo : Annotated[str, Field(min_length=3)]
-    estado: Literal["pendinte", "completado"] = "pendinte"
+    estado: Literal["pendiente", "completado"] = "pendiente"
+
+class FilterParams(BaseModel):
+    limit: Annotated[int, Field(ge=1)] = 5
+    offset: Annotated[int, Field(ge=0)] = 0
+    estado: Literal["pendiente", "completado"] | None = None
+    
 
 fake_db: list[Tarea] = [
     Tarea(id=1, titulo= "Estudiar Python", estado= "pendiente"),
@@ -21,4 +27,19 @@ fake_db: list[Tarea] = [
 ]
 
 app = FastAPI()
-@app.get("/tareas/"):
+
+@app.get("/tareas/")
+def obtener_listafake(filtros: Annotated[FilterParams, Query()]):
+    # if filtros.estado:
+    #     tareas_filtradas = [tarea for tarea in fake_db if tarea.estado == filtros.estado]
+    # else:
+    #     tareas_filtradas = fake_db
+    # return tareas_filtradas
+
+
+    #Filtrar tareas
+    tareas_filtradas =(
+        [tarea for tarea in fake_db if tarea.estado == filtros.estado]if filtros.estado else fake_db
+    )
+    # Aplicar paginacion
+    return tareas_filtradas[filtros.offset: filtros.offset + filtros.limit]
