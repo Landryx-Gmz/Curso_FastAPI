@@ -44,9 +44,9 @@ def obtener_listafake(filtros: Annotated[FilterParams, Query()]):
         [tarea for tarea in fake_db if tarea.estado == filtros.estado]if filtros.estado else fake_db
     )
     #   TAREA POR TITULO SI SE PRPORCIONA
-    if filtros.serch:
+    if filtros.search:
         tareas_filtradas=[
-            t for t in tareas_filtradas if filtros.serch.lower() in t.titulo.lower()
+        t for t in tareas_filtradas if filtros.search.lower() in t.titulo.lower()
         ]
 
     # Aplicar paginacion
