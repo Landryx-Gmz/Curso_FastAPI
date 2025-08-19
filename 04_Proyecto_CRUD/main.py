@@ -11,6 +11,7 @@ class FilterParams(BaseModel):
     limit: Annotated[int, Field(ge=1)] = 5
     offset: Annotated[int, Field(ge=0)] = 0
     estado: Literal["pendiente", "completado"] | None = None
+    search: str | None = None
     
 
 fake_db: list[Tarea] = [
@@ -28,7 +29,7 @@ fake_db: list[Tarea] = [
 
 app = FastAPI()
 
-@app.get("/tareas/")
+@app.get("/tareas/", response_model=list[Tarea])
 def obtener_listafake(filtros: Annotated[FilterParams, Query()]):
     # if filtros.estado:
     #     tareas_filtradas = [tarea for tarea in fake_db if tarea.estado == filtros.estado]
@@ -37,9 +38,16 @@ def obtener_listafake(filtros: Annotated[FilterParams, Query()]):
     # return tareas_filtradas
 
 
-    #Filtrar tareas
+    #==========Filtrar tareas======
+    #   TAREA POR ESTADO 
     tareas_filtradas =(
         [tarea for tarea in fake_db if tarea.estado == filtros.estado]if filtros.estado else fake_db
     )
+    #   TAREA POR TITULO SI SE PRPORCIONA
+    if filtros.serch:
+        tareas_filtradas=[
+            t for t in tareas_filtradas if filtros.serch.lower() in t.titulo.lower()
+        ]
+
     # Aplicar paginacion
     return tareas_filtradas[filtros.offset: filtros.offset + filtros.limit]
