@@ -98,6 +98,3 @@ def eliminar_tarea(id: int):
             del fake_db[i]
             return 
     raise HTTPException(status_code=404, detail="Tarea no encontrada")
-
-
-            
