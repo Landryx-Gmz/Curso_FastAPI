@@ -90,3 +90,14 @@ def actualizar_tarea(id: int, datos: TareaUpdate):
             fake_db[i] = tarea_actualizada
             return tarea_actualizada
     raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+@app.delete("/tareas/{id}", status_code=204)
+def eliminar_tarea(id: int):
+    for i,tarea in enumerate(fake_db):
+        if tarea.id == id:
+            del fake_db[i]
+            return 
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+
+            
