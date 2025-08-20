@@ -18,23 +18,23 @@ class Tarea(TareaBase):
     id: Annotated[int, Field(gt=0)]
 
 class FilterParams(BaseModel):
-    limit: Annotated[int, Field(ge=1)] = 5
+    limit: Annotated[int, Field(ge=1)] = 20
     offset: Annotated[int, Field(ge=0)] = 0
     estado: Literal["pendiente", "completado"] | None = None
     search: str | None = None
     
 
 fake_db: list[Tarea] = [
-    Tarea(id=1, titulo= "Estudiar Python", estado= "pendiente"),
-    Tarea(id=2, titulo= "Lavar la ropa", estado= "completado"),
-    Tarea(id=3, titulo= "Leer un libro", estado= "pendiente"),
-    Tarea(id=4, titulo= "Ir al gimnasio", estado= "completado"),
-    Tarea(id=5, titulo= "Comprar comida", estado= "pendiente"),
-    Tarea(id=6, titulo= "Limpiar el cuarto", estado= "pendiente"),
-    Tarea(id=7, titulo= "Pagar cuentas", estado= "completado"),
-    Tarea(id=8, titulo= "Llamar a mamá", estado= "pendiente"),
-    Tarea(id=9, titulo= "Revisar correo", estado= "pendiente"),
-    Tarea(id=10, titulo= "Lavar carro", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Estudiar Python", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Lavar la ropa", estado= "completado"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Leer un libro", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Ir al gimnasio", estado= "completado"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Comprar comida", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Limpiar el cuarto", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Pagar cuentas", estado= "completado"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Llamar a mamá", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Revisar correo", estado= "pendiente"),
+    Tarea(id=obtener_nuevo_id(), titulo= "Lavar carro", estado= "pendiente"),
 ]
 
 app = FastAPI()
@@ -71,6 +71,9 @@ def get_tarea(id: int):
 
 #=========metodo Post==========
 
-@app.post("/tarea/", response_model=Tarea)
+@app.post("/tareas/", response_model=Tarea, status_code=201)
 def crear_tarea(tarea: TareaCreate):
-    nuevo_id: int
+    nuevo_id: int = obtener_nuevo_id()
+    nueva_tarea: Tarea = Tarea(id=nuevo_id, **tarea.model_dump())
+    fake_db.append(nueva_tarea)
+    return nueva_tarea
