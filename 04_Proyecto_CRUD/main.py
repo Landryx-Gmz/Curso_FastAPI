@@ -1,11 +1,21 @@
 from pydantic import BaseModel, Field
 from fastapi import FastAPI, Query, HTTPException
 from typing import Annotated, Literal
+from itertools import count
 
-class Tarea(BaseModel):
-    id: Annotated[int, Field(gt=0)]
+id_generator = count(start=1)
+def obtener_nuevo_id() -> int:
+    return next(id_generator)
+
+class TareaBase(BaseModel):
     titulo : Annotated[str, Field(min_length=3)]
     estado: Literal["pendiente", "completado"] = "pendiente"
+
+class TareaCreate(TareaBase):
+    pass
+
+class Tarea(TareaBase):
+    id: Annotated[int, Field(gt=0)]
 
 class FilterParams(BaseModel):
     limit: Annotated[int, Field(ge=1)] = 5
@@ -58,3 +68,9 @@ def get_tarea(id: int):
         if tarea.id == id:
             return tarea
     raise HTTPException(status_code=404, detail="Tarea no encontrada")
+
+#=========metodo Post==========
+
+@app.post("/tarea/", response_model=Tarea)
+def crear_tarea(tarea: TareaCreate):
+    nuevo_id: int
