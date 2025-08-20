@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, HTTPException
 from typing import Annotated, Literal
 
 class Tarea(BaseModel):
@@ -51,3 +51,10 @@ def obtener_listafake(filtros: Annotated[FilterParams, Query()]):
 
     # Aplicar paginacion
     return tareas_filtradas[filtros.offset: filtros.offset + filtros.limit]
+
+@app.get("/tareas/{id}", response_model=Tarea)
+def get_tarea(id: int):
+    for tarea in fake_db:
+        if tarea.id == id:
+            return tarea
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
