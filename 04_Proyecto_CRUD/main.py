@@ -14,6 +14,10 @@ class TareaBase(BaseModel):
 class TareaCreate(TareaBase):
     pass
 
+class TareaUpdate(BaseModel):
+    titulo : Annotated[str, Field(min_length=3)]
+    estado: Literal["pendiente", "completado"] 
+
 class Tarea(TareaBase):
     id: Annotated[int, Field(gt=0)]
 
@@ -77,3 +81,12 @@ def crear_tarea(tarea: TareaCreate):
     nueva_tarea: Tarea = Tarea(id=nuevo_id, **tarea.model_dump())
     fake_db.append(nueva_tarea)
     return nueva_tarea
+
+@app.put("/tareas/{id}",response_model=Tarea)
+def actualizar_tarea(id: int, datos: TareaUpdate):
+    for i, tarea in enumerate(fake_db):
+        if tarea.id == id:
+            tarea_actualizada = tarea.model_copy(update=datos.model_dump())
+            fake_db[i] = tarea_actualizada
+            return tarea_actualizada
+    raise HTTPException(status_code=404, detail="Tarea no encontrada")
