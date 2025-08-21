@@ -20,7 +20,7 @@ class Logger:
 def get_logger():# Si este logger cambiase todos los endpoint lo harian tambien asi no se tiene de duplicar codigo
     return Logger()
 
-logger_dependency = Annotated[Logger, Depends(get_logger)]
+logger_dependency = Annotated[Logger, Depends(get_logger)]#dependendia para inyectar en cualquier lado (buenas practicas)
 
 
 @app.get("/item/{message}")
