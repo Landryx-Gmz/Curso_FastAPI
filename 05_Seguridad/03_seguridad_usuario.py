@@ -65,3 +65,10 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
 @app.get("/users/me")
 async def read_users_me(current_user:Annotated[User,Depends(get_current_user)]):
     return current_user
+
+#======Flujo del login=======
+# 1.- Login ->(formdata(usernam,password) -> FastAPI(POST -> "/token"))
+
+#==============Lo que no vemos:====================
+# 2.- Explorador recibe el "token" si es correcto retorna el "token" a FastApi y el explorador lo guarda
+# 3.- Cuando vamos a ruta ("/users/me") esta enviando el (token dentro de header de autorizacion): "Bearer token"
