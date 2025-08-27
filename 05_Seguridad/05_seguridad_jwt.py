@@ -65,7 +65,28 @@ class UserInDb(User):
 
 
 #AUTENTICACION/HELPERS
+
 def get_user(db:dict, username:str):
     if username in db:
         user_dict= db[username]
         return UserInDb(**user_dict)
+
+#autenticacion de usuario
+def authenticat_user(fake_db:dict, username:str,password:str):
+    user = get_user(fake_db, username)
+    if not user:
+        return False
+    if not verify_password(password, user.hashed_password):
+        return False
+    return user
+
+# crear access token
+def create_access_token(data:dict, expires_delta:timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp":expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
