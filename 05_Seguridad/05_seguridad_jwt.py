@@ -22,3 +22,22 @@ def verify_password(plain_password: str, hashed_password: str):
 
 def get_password_hash(password:str):
     return pwd_context.hash(password)
+
+# Fake DB
+
+fake_users_db: dict = {
+    "johndoe": {
+        "username": "johndoe",
+        "email" : "jonhndoe@xample.com",
+        "full_name" : "Jonh Doe",
+        "disable" : False,
+        "hashed_password" : get_password_hash("secret")
+    },
+    "alice": {
+        "username": "alice",
+        "email" : "alice@xample.com",
+        "full_name" : "Alice Smith",
+        "disable" : True,
+        "hashed_password" : get_password_hash("secret2")
+    }
+}
