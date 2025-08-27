@@ -90,3 +90,58 @@ def create_access_token(data:dict, expires_delta:timedelta | None = None):
     to_encode.update({"exp":expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+# FASTAPI
+
+app = FastAPI()
+
+#Sistema de seguridad
+oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
+
+
+async def get_current_user(token: Annotated[str,Depends(oauth2_scheme)]):#Inyeccion de dependencias
+    #casos de credenciales
+    credential_exeption = HTTPException(
+        estatus_code = status.HTTP_401_UNAUTHORIZED,
+        detail="Can validate credentials",
+        headers={"WWW-Authenticate": "Bearer"}
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM] )
+        username= payload.get("sub")
+        if username in None:
+            raise credential_exeption
+        token_data = TokenData(username=username)
+    except InvalidTokenError:
+            raise credential_exeption
+    user = get_user(fake_users_db, username=token_data.username)
+    if user is None:
+        raise credential_exeption
+    return user
+
+#funcion para saber si el usuario esta activo
+async def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]):#Inyeccion de dependencias
+    if current_user.disable:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    return current_user
+
+#CREACION DE RUTAS
+
+@app.post("/token", response_model = Token)
+async def login(from_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user = authenticat_user(fake_users_db, from_data.username, from_data.password)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub":user.username},expires_delta=access_token_expires)
+    return Token(access_token=access_token,token_type="bearer")
+
+
+@app.get("/users/me")
+async def read_user_me(current_user: Annotated[User, Depends(get_current_active_user)]):
+    return current_user   
