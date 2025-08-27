@@ -41,3 +41,31 @@ fake_users_db: dict = {
         "hashed_password" : get_password_hash("secret2")
     }
 }
+
+#MODELS
+#modelo/clases de token:
+class Token(BaseModel):
+    access_token:str
+    token_type:str
+
+class TokenData(BaseModel):
+    username: str |None = None
+
+#modelo/clases de usuarios:
+class User(BaseModel):
+    username:str
+    email:str |None = None
+    full_name:str |None = None
+    disable:bool |None = None
+
+#usuarios bd con password hasheado
+class UserInDb(User):
+    hashed_password: str
+
+
+
+#AUTENTICACION/HELPERS
+def get_user(db:dict, username:str):
+    if username in db:
+        user_dict= db[username]
+        return UserInDb(**user_dict)
