@@ -8,11 +8,35 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from passlib.context import CryptContext
 from pydantic import BaseModel
+from dotenv import load_dotenv
+import os
+from pydantic_settings import BaseSettings
+
 
 # Config(En un proyecto real esto iria a evironment variables/setting)
-SECRET_KEY = "3430c03b489d375fd771b6f9a62c9ceb6283f32901abec80530333631b337220"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+# export SECRET_KEY="------" ponemos nuestar configuraciones en nuestras variables de entorno o .env
+
+# Opciones para trabajar en nuestras variables de entorno:
+# Opcion 1: dotenv  (pip install dotenv) y lo importamos(from dotenv import load_dotenv) u tambien importamos(import os)
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY") or "valor por defecto"
+ALGORITHM = os.getenv("ALGORITHM") or "valor por defecto"
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30)#casteamos a int ya que es un numero
+
+
+# # Opcion 2: con pydantic(pip install pydantic_settings)importamos(from pydantic_settings import BaseSettings)
+# class Setting(BaseSettings):
+#     SECRET_KEY: str
+#     ALGORITHM : str
+#     ACCESS_TOKEN_EXPIRE_MINUTES: int
+
+#     class Config:
+#         env_file = ".env"
+
+# settings = Setting
+# settings.SCRET_KEY
+
+
 
 #HASSHEO PASSWORD
 pwd_context = CryptContext(schemes=["bcrypt"],deprecated="auto")
