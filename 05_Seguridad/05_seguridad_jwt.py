@@ -15,7 +15,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 #HASSHEO PASSWORD
-pwd_context = CryptContext(shcemes=["bcrypt"],deprecate="auto")
+pwd_context = CryptContext(schemes=["bcrypt"],deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password,hashed_password)
@@ -72,7 +72,7 @@ def get_user(db:dict, username:str):
         return UserInDb(**user_dict)
 
 #autenticacion de usuario
-def authenticat_user(fake_db:dict, username:str,password:str):
+def authenticate_user(fake_db:dict, username:str,password:str):
     user = get_user(fake_db, username)
     if not user:
         return False
@@ -103,14 +103,14 @@ oauth2_scheme: OAuth2PasswordBearer = OAuth2PasswordBearer(tokenUrl="token")
 async def get_current_user(token: Annotated[str,Depends(oauth2_scheme)]):#Inyeccion de dependencias
     #casos de credenciales
     credential_exeption = HTTPException(
-        estatus_code = status.HTTP_401_UNAUTHORIZED,
+        status_code = status.HTTP_401_UNAUTHORIZED,
         detail="Can validate credentials",
         headers={"WWW-Authenticate": "Bearer"}
     )
     try:
         payload = jwt.decode(token, SECRET_KEY,algorithms=[ALGORITHM] )
         username= payload.get("sub")
-        if username in None:
+        if username is None:
             raise credential_exeption
         token_data = TokenData(username=username)
     except InvalidTokenError:
@@ -126,11 +126,11 @@ async def get_current_active_user(current_user: Annotated[User, Depends(get_curr
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
-#CREACION DE RUTAS
+#ENDPOINTS
 
 @app.post("/token", response_model = Token)
-async def login(from_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-    user = authenticat_user(fake_users_db, from_data.username, from_data.password)
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
