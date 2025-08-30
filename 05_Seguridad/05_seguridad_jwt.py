@@ -25,7 +25,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30
 
 
 # # Opcion 2: con pydantic(pip install pydantic_settings)importamos(from pydantic_settings import BaseSettings)
-# class Setting(BaseSettings):
+# class Settings(BaseSettings):
 #     SECRET_KEY: str
 #     ALGORITHM : str
 #     ACCESS_TOKEN_EXPIRE_MINUTES: int
@@ -33,7 +33,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or 30
 #     class Config:
 #         env_file = ".env"
 
-# settings = Setting
+# settings = Settings
 # settings.SCRET_KEY
 
 
