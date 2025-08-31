@@ -5,7 +5,8 @@ from typing import Annotated
 from fastapi import Depends, FastAPI,Query, HTTPException
 from contextlib import asynccontextmanager
 
-#===========Relaciones entre modelos==================
+#==============MODELOS Y RELACIONES==================
+
 #Modelo Base
 class TeamBase(SQLModel):
     name: str = Field(index=True)
@@ -53,7 +54,10 @@ class HeroUpdate(SQLModel):
     name: str |None = None
     age: int |None = None
     secret_name: str |None = None
-    team_id: id |None = None
+    team_id: int |None = None
+
+
+#=====================SQLITE======================
 
 #Motor de base de datos con sqlite
 sqlite_file_name="database.db"#nombre de la base de datos
@@ -76,6 +80,7 @@ def get_session():
 
 SessionDep= Annotated[Session,Depends(get_session)]
 
+#========================LIFESPAN EVENT==========================
 # Lifespan Events (codigo que se ejecuta antes de que la app inicie una reques o antes de que cierre la app)
 
 @asynccontextmanager
@@ -87,7 +92,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-# CRUD
+
+#=================ENDPOINTS=====================
+
+
+# ==================CRUD====================
 # Get (Leer todo los Heroes)
 @app.get("/heroes/", response_model=list[HeroPublic])
 def get_heroes(
@@ -137,3 +146,42 @@ def delete_heroe(hero_id: int, session: SessionDep):
     session.delete(hero)
     session.commit()
     return {"ok": True}
+
+
+
+# =======================TEAMS==========================
+
+#Crear team
+@app.post("/teams/", response_model=TeamPublic)
+def create_team(team: TeamCreate, session: SessionDep):
+    db_team = Team.model_validate(team)
+    session.add(db_team)
+    session.commit()
+    session.refresh(db_team)
+    return db_team
+
+#Obtener team por ID
+@app.get("/teams/{team_id}", response_model=TeamPublic)
+def get_team(team_id: int, session: SessionDep):
+    team = session.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    return team
+
+#Eliminar team
+@app.delete("/teams/{team_id}")
+def delete_team(team_id: int, session: SessionDep):
+    team = session.get(Team, team_id)
+    if not team:
+        raise HTTPException(status_code=404, detail="Team not found")
+    #opcion 1 team_id = None en todods los heroes
+    for hero in team.heroes:
+        hero.team_id = None
+        hero.team = None
+    #opcion 2 Borrar todos los heroes del equipo
+    # for hero in team.heroes:
+    #     session.delete(hero)
+    session.delete(team)
+    session.commit()
+    return{"messege": f"Team{team.name} delete!"}
+
