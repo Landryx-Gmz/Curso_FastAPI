@@ -1,8 +1,8 @@
 #Instalamos sqlmodel (pip install sqlmodel)
 
-from sqlmodel import Field, SQLModel, create_engine, Session
+from sqlmodel import Field, SQLModel, create_engine, Session, select
 from typing import Annotated
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI,Query, HTTPException
 from contextlib import asynccontextmanager
 
 
@@ -61,3 +61,54 @@ async def lifespan(app: FastAPI):
     #codigo que se ejecutara despues
 
 app = FastAPI(lifespan=lifespan)
+
+# CRUD
+# Get (Leer todo los Heroes)
+@app.get("/heroes/", response_model=list[HeroPublic])
+def get_heroes(
+    session:SessionDep,
+    offset: int = 0,
+    limit: Annotated[int,Query(le=100)] = 100
+):
+    heroes = session.exec(select(Hero).offset(offset).limit(limit).all())
+    return heroes
+
+# Get (Leer heroe por ID)
+@app.get("/heroes/{hero_id}", response_model=HeroPublic)
+def get_hero_id(hero_id: int, session: SessionDep):
+    hero = session.get(Hero, hero_id)
+    if not hero:
+        raise HTTPException(status_code=404, detail="Hero not found")
+    return hero
+
+# Post (Crear heroe)
+@app.post("/heroes/", response_model=HeroPublic)
+def create_heroe(hero: HeroCreate, session: SessionDep):
+    db_hero = Hero.model_validate(hero)
+    session.add(db_hero)
+    session.commit()
+    session.refresh(db_hero)
+    return db_hero
+
+#Patch (actualizar heroe por id)
+@app.patch("/heroes/{hero_id}", response_model=HeroPublic)
+def update_heroe(hero_id: int,hero: HeroUpdate, session : SessionDep):
+    hero_db = session.get(hero_id)
+    if not hero_db:
+        raise HTTPException(status_code=404, detail="Hero not found")
+    hero_data = hero.model_dump(exclude_unset=True)
+    hero_db.sqlmodel_update(hero_data)
+    session.add(hero_db)
+    session.commit()
+    session.refresh(hero_db)
+    return hero_db
+
+#Delete (eliminar Heroe por id)
+@app.delete("/heroes/{hero_id}")
+def delete_heroe(hero_id: int, session: SessionDep):
+    hero = session.get(Hero, hero_id)
+    if not hero:
+        raise HTTPException(status_code=404, detail="Hero not found")
+    session.delete(hero)
+    session.commit()
+    return {"ok": True}
