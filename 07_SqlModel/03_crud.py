@@ -70,7 +70,7 @@ def get_heroes(
     offset: int = 0,
     limit: Annotated[int,Query(le=100)] = 100
 ):
-    heroes = session.exec(select(Hero).offset(offset).limit(limit).all())
+    heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()
     return heroes
 
 # Get (Leer heroe por ID)
@@ -93,7 +93,7 @@ def create_heroe(hero: HeroCreate, session: SessionDep):
 #Patch (actualizar heroe por id)
 @app.patch("/heroes/{hero_id}", response_model=HeroPublic)
 def update_heroe(hero_id: int,hero: HeroUpdate, session : SessionDep):
-    hero_db = session.get(hero_id)
+    hero_db = session.get(Hero,hero_id)
     if not hero_db:
         raise HTTPException(status_code=404, detail="Hero not found")
     hero_data = hero.model_dump(exclude_unset=True)
