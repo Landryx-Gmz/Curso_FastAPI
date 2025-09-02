@@ -20,3 +20,12 @@ def test_get_not_existent_user():
     response = client.get("/users/4", headers={"X-Token": "misupertoken"})
     assert response.status_code == 404
     assert response.json() == {"detail": "User not foun"}
+
+def test_create_user():
+    response = client.post(
+        "/users/",
+        headers={"X-Token": "misupertoken"},
+        json={"id": "4","username": "user4", "email": "user@mail.com"}
+    )
+    assert response.status_code == 200
+    assert response.json() == {"id": "4","username": "user4", "email": "user@mail.com"}
