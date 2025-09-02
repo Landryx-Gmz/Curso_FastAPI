@@ -25,7 +25,16 @@ def test_create_user():
     response = client.post(
         "/users/",
         headers={"X-Token": "misupertoken"},
-        json={"id": "4","username": "user4", "email": "user@mail.com"}
+        json={"id": "4","username": "user4", "email": "user4@mail.com"}
     )
     assert response.status_code == 200
     assert response.json() == {"id": "4","username": "user4", "email": "user@mail.com"}
+
+def test_create_user_bad_token():
+    response = client.post(
+        "/users/",
+        headers={"X-Token": "estanoeseltoken"},
+        json={"id": "5","username": "user5", "email": "user5@mail.com"}
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": "Invalid token"}
