@@ -38,3 +38,15 @@ def test_create_user_bad_token():
     )
     assert response.status_code == 400
     assert response.json() == {"detail": "Invalid token"}
+
+def test_creat_existing_user():
+    response = client.post(
+        "/users/",
+        headers={"X-Token": "misupertoken"},
+        json={
+        "id":"1",
+        "username":"Andy",
+        "email": "andy@mail.com"}
+        )
+    assert response.status_code == 409
+    assert response.json() == {"detail": "User already exist "}

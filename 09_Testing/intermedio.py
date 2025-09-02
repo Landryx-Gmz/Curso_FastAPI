@@ -17,7 +17,7 @@ fake_user_db: dict[str,User] = {
 
 app = FastAPI()
 
-@app.get("/users{user_id}", response_model=User)
+@app.get("/users/{user_id}", response_model=User)
 async def get_user(user_id:str, x_token:Annotated[str, Header()]):
     if x_token != fake_secret_token:
         raise HTTPException(status_code=400, detail="Invalid token")
@@ -25,7 +25,7 @@ async def get_user(user_id:str, x_token:Annotated[str, Header()]):
         raise HTTPException(status_code=404, detail="User not found")
     return fake_user_db[user_id]
 
-@app.post("/users", response_model=User)
+@app.post("/users/", response_model=User)
 async def create_user(user: User, x_token: Annotated[str, Header()]):
     if x_token != fake_secret_token:
         raise HTTPException(status_code=400, detail="Invalid token")
