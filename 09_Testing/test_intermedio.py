@@ -19,7 +19,7 @@ def test_get_user_bad_token():
 def test_get_not_existent_user():
     response = client.get("/users/4", headers={"X-Token": "misupertoken"})
     assert response.status_code == 404
-    assert response.json() == {"detail": "User not foun"}
+    assert response.json() == {"detail": "User not found"}
 
 def test_create_user():
     response = client.post(
@@ -28,7 +28,7 @@ def test_create_user():
         json={"id": "4","username": "user4", "email": "user4@mail.com"}
     )
     assert response.status_code == 200
-    assert response.json() == {"id": "4","username": "user4", "email": "user@mail.com"}
+    assert response.json() == {"id": "4","username": "user4", "email": "user4@mail.com"}
 
 def test_create_user_bad_token():
     response = client.post(
@@ -49,4 +49,4 @@ def test_creat_existing_user():
         "email": "andy@mail.com"}
         )
     assert response.status_code == 409
-    assert response.json() == {"detail": "User already exist "}
+    assert response.json() == {"detail": "User already exist"}
