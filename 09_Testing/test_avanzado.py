@@ -33,3 +33,10 @@ def test_create_and_read_item(client_with_db, sample_item):
     assert response.status_code == 200
     assert response.json() == sample_item
 
+def test_create_duplicate_item(client_with_db, sample_item):
+    client = client_with_db
+    client.post("/items/", json=sample_item)
+    response = client.post("/items/", json=sample_item)
+    assert response.status_code== 409
+    assert response.json() == {"detail": "Item already exists"}
+
